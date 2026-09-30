@@ -1,4 +1,4 @@
-# Čišćenje medija – jerkovic.hr
+# Čišćenje medija
 
 Alat za sigurno čišćenje `wp-content/uploads` na WordPress stranici (Enfold tema):
 
@@ -17,7 +17,7 @@ Sve se radi kroz preglednik (nema CLI-ja), u malim serijama koje se same nastavl
 - `missing-on-disk.txt` – stari popis datoteka koje su nedostajale u nepotpunom backupu (povijesno).
 - `analysis/` – crawleri i pomoćne skripte za analizu (vidi dolje).
 
-Izvan ove mape (u `~/Projects/`) ostale su sigurnosne kopije s lokalnog testiranja: `jerkovic-uploads-backup-20260930` i `jerkovic-db-before-test-20260930.sql.gz`.
+Izvan ove mape (u `~/Projects/`) ostale su sigurnosne kopije s lokalnog testiranja: `uploads-backup-20260930` i `db-before-test-20260930.sql.gz`.
 
 ## Kako skripta odlučuje
 
@@ -38,12 +38,12 @@ Izvan ove mape (u `~/Projects/`) ostale su sigurnosne kopije s lokalnog testiran
 4. **Svježa `live-files.txt`** neposredno prije skena (vidi "Kako napraviti live-files.txt"). Ako nedostaje, skripta na izvješću pokazuje upozorenje i faza B je manje sigurna.
 5. (Opcionalno) `known-unused.txt`: jedna slika po retku (ime datoteke, URL ili CSV redak). Izvješće javlja koliko ih je prepoznato kao nekorištene.
 6. **Upload preko FTP-a** u korijen WordPressa (`public_html`, pored `wp-load.php`): `unused-media-cleanup.php`, `live-files.txt`, `known-unused.txt`.
-7. Provjeri da se skripta otvara: `https://www.jerkovic.hr/unused-media-cleanup.php` treba preusmjeriti na prijavu (samo prijavljeni administrator smije dalje).
+7. Provjeri da se skripta otvara: `https://xxxxxx/unused-media-cleanup.php` treba preusmjeriti na prijavu (samo prijavljeni administrator smije dalje).
 8. Preporuka: prvo probaj na lokalnoj kopiji (ddev, svježa baza + slike).
 
 ## POKRETANJE
 
-1. Otvori `https://www.jerkovic.hr/unused-media-cleanup.php` kao administrator.
+1. Otvori `https://xxxxxx/unused-media-cleanup.php` kao administrator.
 2. **Novi sken:** označi "Ignoriraj sadržaj u smeću" i "Analiziraj i veličine slika". Strogi način ne označavaj u prvom prolazu. Pričekaj da se stranica sama nastavlja.
 3. **Provjeri izvješće prije primjene.** Na ovoj stranici (rujan 2026.) očekivane brojke bile su:
    - lista: **231 / 234** prepoznato (3 slike `Parter_FT_*` ostaju zbog pravila "vezano uz stranicu"),
@@ -76,7 +76,7 @@ Izvan ove mape (u `~/Projects/`) ostale su sigurnosne kopije s lokalnog testiran
 Crawler dohvaća (samo GET) objavljene stranice iz sitemapa i blog/arhive, pa bilježi sve URL-ove slika iz HTML-a (uključujući `srcset`).
 
 ```bash
-cd ~/Projects/jerkovic-media-cleanup
+cd ~/Projects/wp-media-cleanup
 python3 analysis/umc_crawl.py            # stranice iz sitemapa; piše /tmp/umc_crawl_files.json
 python3 analysis/umc_crawl_archives.py   # blog, kategorije, pretraga; piše analysis/umc_crawl_archives_files.json
 python3 - <<'EOF'
@@ -88,11 +88,11 @@ print(len(a | b), 'URL-ova u live-files.txt')
 EOF
 ```
 
-Napomena: adresa produkcije (`https://www.jerkovic.hr`) upisana je u oba crawlera. Crawl traje nekoliko minuta (~0,3 s razmaka između zahtjeva).
+Napomena: adresa produkcije upisana je u oba crawlera. Crawl traje nekoliko minuta (~0,3 s razmaka između zahtjeva).
 
 ## Test na lokalnoj kopiji (ddev)
 
-Prije produkcije ima smisla isprobati sve na kopiji (APFS klon `uploads` napravi se trenutno: `cp -c -R wp-content/uploads ../jerkovic-uploads-backup-DATUM`). Test koji je napravljen ovaj put:
+Prije produkcije ima smisla isprobati sve na kopiji (APFS klon `uploads` napravi se trenutno: `cp -c -R wp-content/uploads ../wp-uploads-backup-DATUM`). Test koji je napravljen ovaj put:
 
 - Faza B: 35.909 datoteka u karantenu, 0 grešaka; nijedna datoteka iz `live-files.txt` nije izgubljena; nijedan unos u metapodacima ne pokazuje na uklonjenu datoteku.
 - Vraćanje: datoteke i metapodaci identični izvornom stanju.
